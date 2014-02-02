@@ -1,0 +1,79 @@
+<html>
+<body>
+<head>
+
+	<title>Dynamic Table</title>
+	<link rel="stylesheet" href="styles/css/bootstrap.css">
+	<link rel="stylesheet" href="styles/css/bootstrap.min.css">
+	<link rel ="stylesheet" href = "styles/css/mystyles.css">
+</head>
+	<div class="page-header">
+
+		<h3 align="center">Dynamic Table</h1>
+	</div>
+	<div class="panel panel-info">
+		<div class="panel-heading">Description</div>
+		<div class="panel-body">
+			<ul>
+				<li>On pressing Add Record, a new record will be created.</li>
+				<li>
+					Clicking the select button and then clicking on a row or the field will cause the entity to be selected.
+				</li>
+				<li>
+					On selection and clicking the delete button will cause the row or the field to be removed.
+				</li>
+				<li>
+					Clicking on the add new field, textboxes will be created in the table where any input can be given and on pressing enter key the new field will be added.
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div id="tableContainer">
+		<p id="buttonContainer">
+			<button  title='Select Rows' align='center' type='button'  class='btn btn-info btn-xs' id='selectRows'>
+				<img src='icons/cursor.png'></button>
+			&nbsp;
+			<button  title='Confirm Delete' id='confirm' type='button' class='btn btn-info btn-sm '>
+				<img src='icons/cross.png'></button>
+			&nbsp;
+			<button title='Click to add field' class='btn btn-info btn-sm'   id='newCol' >
+				<img src='icons/report--plus.png'></button>
+		</p>
+		<div class = "panel panel-primary">
+			<div class="panel-heading">Employee Details</div>
+			<table id="table" class="table table-bordered table-condensed table-alt">
+				<tr id='headContainer'>
+					<th>ID Number</th>
+					<th>First Name</th>
+					<th>Last Name</th>
+					<th>Email</th>
+					<th>Date Of Birth</th>
+				</tr>
+				<tr>
+					<td>12345</td>
+					<td>Keerath</td>
+					<td>Jaggi</td>
+					<td>keerath.jaggi@gmail.com</td>
+					<td>06/05/1993</td>
+				</tr>
+				<tr>
+					<td>23456</td>
+					<td>Nitin</td>
+					<td>Jaggi</td>
+					<td>nitn.jaggi@gmail.com</td>
+					<td>05/07/1995</td>
+				</tr>
+
+			</table>
+		</div>
+	</div>
+	<div id="info" class="jumbotron">
+		<h4 id="new"> <b>Enter new records:</b>
+		</h4>
+		<form id="userInput"></form>
+	</div>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="jquery.lint.js"></script>
+	<script src="table.js"></script>
+</body>
+</html>
