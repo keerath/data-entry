@@ -2,20 +2,6 @@
 $(document).ready(function () {
     "use strict";
     var userInput = $("#userInput"), position;
-
-    $("#table th").each(function () {
-
-        var fieldname = $(this).text().trim();
-        userInput.append("<h5 align = 'left'>&nbsp;Enter " + fieldname + ":&nbsp;" 
-                        + "<input class = 'form-control up'  align='left' type='text'\
-                        placeholder='" + fieldname + "'/></h5>");
-
-    });
-    
-    $("#info").append("<button type = 'button' title = 'Add Records'\
-                     class = 'glyphicon glyphicon-plus-sign btn btn-info btn-sm highlight '\
-                     id='update'>&nbsp;Add</buttton> ");
-    
     $("#table").on('dblclick', 'td', function (event) {
 
         event.preventDefault();
