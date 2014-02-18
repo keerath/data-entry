@@ -5,6 +5,9 @@
 #include <string.h>
 json_t *arr;
 httpd *server;
+httpVar *var;
+json_t *response;
+json_error_t error;
 void init()
 {
     arr = json_array();
@@ -64,6 +67,11 @@ void get_data()
     {
         httpdPrintf(server,"%s",json_dumps(arr,JSON_INDENT(4)));
     }
+    else if(strcmp(httpdRequestMethodName(server),"POST")==0)
+    {
+        var = httpdGetVariableByName(server,"tabledata");
+        printf("%s",var->value);
+    }
 }
 
 main()
@@ -94,6 +102,7 @@ while(1==1)
       continue;
    }
    httpdProcessRequest(server);
+
    httpdEndRequest(server);
 }
 }
