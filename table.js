@@ -4,11 +4,11 @@ $(document).ready(function () {
     var userInput = $("#userInput"), position;
     $("#table").on('dblclick', 'td', function (event) {
         var flag =1;
+        var field;
         event.preventDefault();
         var elem, defaultText;
         defaultText = $(this).text().trim();
         elem = $(this);
-
         elem.html('<input id= "in" type= "text" value="' + defaultText + '" />');
         elem.children().first().focus();
 
@@ -29,13 +29,24 @@ $(document).ready(function () {
             }
         });
         function data_update()
-        {
+        {   alert("hi");
+            var clickpos = $("td").index(elem);
+            var rownum = $("tr").index(elem.parent());
+            var n = $("th").length;
+            if(clickpos>length-1)
+            {
+                 field = $("th").get(clickpos-n).innerText;
+            }
+            else
+            {
+                 field =$("th").get(clickpos).innerText;
+            }
          $.ajax
           ({
             type:"POST",
             async:false,
             url:"/update_data",
-            data: encodeURI("celldata="+elem.text()),s
+            data: encodeURI("celldata="+elem.text()+"&rowNum="+rownum+"&field="+field),
             dataType:"text",
           })
 

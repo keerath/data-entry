@@ -6,12 +6,13 @@
 json_t *arr;
 httpd *server;
 httpVar *var1,*var2;
+httpVar *num,*field;
 json_t *response;
 json_error_t error;
 MYSQL *conn; 
 /* Initialise MYSQL Connection , execute queries
 to get fields and records and convert this to 
-json i.e. field-name, field-data value pairs. */
+json i.e. field-name, field-value pairs. */
 void init()
 {
     arr = json_array();
@@ -62,7 +63,12 @@ void update_data(){
     if(strcmp(httpdRequestMethodName(server),"POST")==0)
     {
         var2 = httpdGetVariableByName(server,"celldata");
-        printf("%s",var2->value);
+        num = httpdGetVariableByName(server,"rowNum");
+        field = httpdGetVariableByName(server,"field");
+        char *str;
+        sprintf(str,"UPDATE details SET %s='%s' WHERE num='%s'",field->value,var2->value,num->value);
+        printf("%s",str);
+        mysql_query(conn,str);
     }
 
 }
@@ -78,7 +84,6 @@ void get_data()
         var1 = httpdGetVariableByName(server,"tabledata");
         response = json_array();
         response = json_loads(var1->value,0,&error);
-        
     }
 }
  
