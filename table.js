@@ -3,7 +3,7 @@ $(document).ready(function () {
     "use strict";
     var userInput = $("#userInput"), position;
     $("#table").on('dblclick', 'td', function (event) {
-
+        var flag =1;
         event.preventDefault();
         var elem, defaultText;
         defaultText = $(this).text().trim();
@@ -14,21 +14,42 @@ $(document).ready(function () {
 
         $(document).on({
             keypress: function (event) {
-                if (event.which === 13) {
+                if (event.which === 13&&flag===1) {
                     elem.text(elem.children().val());
+                    data_update();
+                    flag=0;
                 }
             },
             click: function (event) {
-                if (event.target.tagName !== "INPUT") {
+                if (event.target.tagName !== "INPUT"&&flag===1) {
                     elem.text(elem.children().val());
+                    data_update();
+                    flag=0;
                 }
             }
         });
+        function data_update()
+        {
+         $.ajax
+          ({
+            type:"POST",
+            async:false,
+            url:"/update_data",
+            data: encodeURI("celldata="+elem.text()),s
+            dataType:"text",
+          })
+
+        }
+        
 
     });
 
     $("#update").bind("click", function (event) {
-
+        var data = $("#userInput").serialize();
+        $.ajax({
+            type:"POST",
+            data:data,
+    });
         event.preventDefault();
         $("table").append("<tr> </tr>");
         $(".up").each(function () {

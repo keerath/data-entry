@@ -42,15 +42,16 @@ top: -20px;
         
 }
 
-#tableContainer{
-                        
-                        margin-top: 150px;
-                        left:40%;
-                        position:absolute;
-                        overflow: hidden;
-        }
-.table-alt>tbody>tr>td.selectedrow{
-        background-color: lightyellow;
+#tableContainer
+{                    
+margin-top: 150px;
+left:40%;
+position:absolute;
+overflow: hidden;
+}
+.table-alt>tbody>tr>td.selectedrow
+{
+        background-color: yellow;
 }
 .table-alt>tbody>tr>th.selectedcol,.table-alt>tbody>tr>td.selectedcol{
         background-color: lightyellow;
