@@ -1,6 +1,7 @@
 /* global document,alert,$ */
 $(document).ready(function () {
     "use strict";
+    var send =[];
     var userInput = $("#userInput"), position;
     $("#table").on('dblclick', 'td', function (event) {
         var flag =1;
@@ -83,12 +84,15 @@ $(document).ready(function () {
     });
 
     
-    $("#selectRows").bind("click", function () {
-        $("#table td").unbind("click").bind("click", function () {
+    $("#selectRows").bind("click", function (event) {
+        event.preventDefault();
+        $("#table td").unbind("click").bind("click", function (event) {
+            event.preventDefault();
             var row = $(this).parent();
             row.children().toggleClass("selectedrow");
         });
-        $("#table th").unbind("click").bind("click", function () {
+        $("#table th").unbind("click").bind("click", function (event) {
+            event.preventDefault();
             position = $(this).index();
 
             $('tr').find('td:eq(' + position + '), th:eq(' + position + ')')
@@ -97,19 +101,39 @@ $(document).ready(function () {
     });
 
 
-    $("#confirm").click(function () {
+    $("#confirm").click(function (event) {
+            event.preventDefault();
         if ($(".selectedrow").length === 0 && $(".selectedcol").length === 0) {
             alert("Please Select Rows or Fields");
-        } else {
+        } 
+        else {
             if ($(".selectedcol").length !== 0) {
                 $("#userInput h5").remove(":contains('" + 
                 $("th.selectedcol").text().trim() + "')");
-                $("td.selectedcol,th.selectedcol").remove();
-            } else if ($(".selectedrow").length !== 0) {
+                var temp = 1;
+                $("th.selectedcol").each(function(){
+                        var index = {};
+                        index[temp]=$(this).text();
+                        send.push(index);
+                        temp++;
+                        });
+                        $("td.selectedcol,th.selectedcol").remove();
+                        }
+             else if ($(".selectedrow").length !== 0) {
                 $("td.selectedrow").parent().remove();
             }
-        }
-    });
+            }
+             $.ajax({
+                                    type: "POST",
+                                    url:"/get_data",
+                                    data: encodeURI("colname="+ JSON.stringify(send)),
+                                    dataType:"json",
+                                    aync:false,
+                   })
+        });
+    
+
+
 
     $("#newCol").click(function () {
         var temp, txt;
