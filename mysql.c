@@ -9,6 +9,7 @@
 #define PORT_NUMBER 9080
 #define MAX_RECORD_LENGTH 1024
 #define MAX_VALUE_LENGTH 50
+#define MAX_QUERY_LENGTH 200
 json_error_t error;
 MYSQL *conn;
 json_t *arr;
@@ -34,31 +35,26 @@ void init()
         fprintf(stderr, "%s\n", mysql_error(conn));
         exit(1);
     }
-
-    mysql_query(conn, "show fields from details");
+    mysql_query(conn,"ALTER TABLE details ADD COLUMN num INT AUTO_INCREMENT UNIQUE");
+    mysql_query(conn,"CREATE TABLE temp LIKE details");
+    mysql_query(conn,"INSERT INTO temp (SELECT * FROM details)");
+    mysql_query(conn,"ALTER TABLE temp DROP COLUMN num");
+    mysql_query(conn, "show fields from temp");
     res1 = mysql_store_result(conn);
-
     while ((row1 = mysql_fetch_row(res1)) != NULL)
     {
         fields[j] = row1[0];
         j++;
     }
-
-    mysql_query(conn,"ALTER TABLE details ADD COLUMN num INT AUTO_INCREMENT UNIQUE FIRST");
-    mysql_query(conn,"CREATE TABLE temp LIKE details");
-    mysql_query(conn,"INSERT INTO temp (SELECT * FROM details)");
-    mysql_query(conn,"ALTER TABLE temp DROP COLUMN num");
     mysql_query(conn,"SELECT * FROM temp");
-    res2 = mysql_use_result(conn);
-
+    res2 = mysql_store_result(conn);
     while ((row2 = mysql_fetch_row(res2)) != NULL)
     {
         json_t *obj = json_object();
 
         for (i = 0 ; i < mysql_num_fields(res2) ; i++)
-        {
-            json_object_set(obj, fields[i], json_string_nocheck(row2[i]));
-
+        {   
+            json_object_set(obj, fields[i], json_string(row2[i]));
         }
         json_array_append(arr, obj);
     }
@@ -69,8 +65,7 @@ void init()
 void update_data(httpd *server)
 {
     httpVar *var2,*num,*field;
-    char *str;
-
+    char *str = (char *)malloc(MAX_QUERY_LENGTH);
     if(strcmp(httpdRequestMethodName(server),"POST")==0)
     {  
         var2 = httpdGetVariableByName(server,"celldata");
@@ -79,67 +74,39 @@ void update_data(httpd *server)
 
         sprintf(str,"UPDATE details SET %s='%s' WHERE num='%s'",field->value,var2->value,num->value);
         printf("%s",str);
-        mysql_query(conn,str);
+        if(mysql_query(conn,str))
+        {
+            fprintf(stderr,"%s",mysql_error(conn));
+        }
     }
+    free(str);
     return;
 }
 
 /*C function to dump and recieve the data. */
 void get_data(httpd *server)
 {       
-    json_t *col_data;
-    int i;
-    char *st;
-    httpVar *col;
-    col_data = json_array();
-
     if(strcmp(httpdRequestMethodName(server),"GET")==0)
     {
-        httpdPrintf(server,"%s",json_dumps(arr,JSON_INDENT(4)));
-        printf("%s",json_dumps(arr,JSON_INDENT(4)));
-    }
-
-    else if(strcmp(httpdRequestMethodName(server),"POST")==0)
-    {
-        col= httpdGetVariableByName(server,"colname");
-        st = col->value;
-        col_data = json_loads(st,0,&error);
-
-        for(i=0;i<json_array_size(col_data);i++)
-        {       
-            json_t *col_obj,*st1;
-            char *string1,*string2;
-            st1 = json_object();
-            col_obj=json_array_get(col_data,i);
-            sprintf(string1,"%d",i+1);
-            st1 = json_object_get(col_obj,string1);
-            sprintf(string2,"ALTER TABLE details DROP COLUMN %s",json_string_value(st1));
-
-            if(mysql_query(conn,string2))
-            {
-                fprintf(stdout,"%s",mysql_error(conn));
-            }
-        }
+        httpdPrintf(server,"%s",json_dumps(arr,JSON_PRESERVE_ORDER));
     }
     return;
 }
 void new_data(httpd *server)
-{   httpVar *insert_record;
+{   httpVar *insert,*colname;
     int j=0;
-    json_t *new_obj =json_object();
+    json_t *new_obj =json_object(),*new_array=json_array();
     const char *key;
     json_t *value;
-    char *new_keys,*new_values,*query;
-    char temp[MAX_VALUE_LENGTH];
-
+    char *new_keys,*new_values,*query = (char *)malloc(MAX_QUERY_LENGTH);
+    char temp[MAX_QUERY_LENGTH];
+    size_t index;
     if(strcmp(httpdRequestMethodName(server),"POST")==0)
     {   
-        insert_record = httpdGetVariableByName(server,"new_data");
-        new_obj = json_loads(insert_record->value,0,&error);
+        insert = httpdGetVariableByName(server,"newrowdata");
+        new_obj = json_loads(insert->value,0,&error);
         new_keys = calloc(MAX_RECORD_LENGTH,sizeof(char)) ;
         new_values = calloc(MAX_RECORD_LENGTH,sizeof(char));
-        if(new_keys==NULL||new_values==NULL)
-            fprintf(stderr,"Memory Not Allocated");
         json_object_foreach(new_obj,key,value)
         {   
             j++; 
@@ -162,6 +129,52 @@ void new_data(httpd *server)
            free(new_values);
         
         }
+    else if(strcmp(httpdRequestMethodName(server),"GET")==0)
+    {   
+        colname = httpdGetVariableByName(server,"new_th");
+        sprintf(query,"ALTER TABLE details ADD COLUMN `%s` varchar(25)",colname->value);//datatype currently hard-coded
+        if(mysql_query(conn,query))
+            fprintf(stderr,"%s",mysql_error(conn));
+        insert = httpdGetVariableByName(server,"newcoldata");
+        new_array = json_loads(insert->value,0,&error);
+        json_array_foreach(new_array,index,value)
+        {
+            sprintf(temp,"UPDATE details SET `%s`='%s' WHERE num = %d",colname->value,json_string_value(value),++j);
+            if(mysql_query(conn,temp))
+                fprintf(stderr,"%s",mysql_error(conn));
+        }
+    }
+    free(query);
+    return;
+}
+void del(httpd *server)
+{     httpVar *rows,*cols;
+      json_t *row_index= json_array(),*value,*col_data=json_array();
+      size_t index;
+      char *query =(char *)malloc(MAX_QUERY_LENGTH);
+    if(strcmp(httpdRequestMethodName(server),"GET")==0)
+    {   
+        rows = httpdGetVariableByName(server,"indices");
+        row_index = json_loads(rows->value,0,&error);
+        json_array_foreach(row_index,index,value)
+        {
+            sprintf(query,"DELETE FROM details WHERE num = %s",json_string_value(value));
+            if(mysql_query(conn,query))
+                fprintf(stderr,"%s",mysql_error(conn));
+        }
+    }
+    else if(strcmp(httpdRequestMethodName(server),"POST")==0)
+    {   
+        cols= httpdGetVariableByName(server,"colname");
+        col_data = json_loads(cols->value,0,&error);
+        json_array_foreach(col_data,index,value)
+        {
+            sprintf(query,"ALTER TABLE details DROP COLUMN %s",json_string_value(value));
+            if(mysql_query(conn,query))
+                fprintf(stderr,"%s",mysql_error(conn));
+        }
+    }
+    free(query);
     return;
 }
 void drop()
@@ -206,6 +219,7 @@ int main(argc,argv)
     httpdAddCContent(server,"/","get_data",HTTP_FALSE,NULL,get_data);
     httpdAddCContent(server,"/","update_data",HTTP_FALSE,NULL,update_data);
     httpdAddCContent(server,"/","new_data",HTTP_FALSE,NULL,new_data);
+    httpdAddCContent(server,"/","del",HTTP_FALSE,NULL,del);
     init();
 
     while(1==1)

@@ -2,6 +2,7 @@
 $(document).ready(function () {
     "use strict";
     var send =[];
+    var row_indices =[];
     var userInput = $("#userInput"), position;
     $("#table").on('dblclick', 'td', function (event) {
         var flag =1;
@@ -52,8 +53,6 @@ $(document).ready(function () {
           })
 
         }
-        
-
     });
 
     $("#update").bind("click", function (event) {
@@ -79,7 +78,7 @@ $(document).ready(function () {
         alert(JSON.stringify(new_record));
        $.ajax({
             type:"POST",
-            data:encodeURI("new_data=" + JSON.stringify(new_record)),
+            data:encodeURI("newrowdata=" + JSON.stringify(new_record)),
             url:"/new_data",
             async:false,
             dataType:"json",
@@ -94,10 +93,12 @@ $(document).ready(function () {
 
     
     $("#selectRows").bind("click", function (event) {
+
         event.preventDefault();
         $("#table td").unbind("click").bind("click", function (event) {
             event.preventDefault();
             var row = $(this).parent();
+            row_indices.push(row.index().toString());
             row.children().toggleClass("selectedrow");
         });
         $("#table th").unbind("click").bind("click", function (event) {
@@ -119,33 +120,37 @@ $(document).ready(function () {
             if ($(".selectedcol").length !== 0) {
                 $("#userInput h5").remove(":contains('" + 
                 $("th.selectedcol").text().trim() + "')");
-                var temp = 1;
                 $("th.selectedcol").each(function(){
-                        var index = {};
-                        index[temp]=$(this).text();
-                        send.push(index);
-                        temp++;
+                        send.push($(this).text());
                         });
+                        alert(JSON.stringify(send));
+                          $.ajax({
+                                    type: "POST",
+                                    url:"/del",
+                                    data: encodeURI("colname="+ JSON.stringify(send)),
+                                    dataType:"json",
+                                    aync:false,
+                                })
                         $("td.selectedcol,th.selectedcol").remove();
                         }
              else if ($(".selectedrow").length !== 0) {
                 $("td.selectedrow").parent().remove();
+                  $.ajax 
+                  ({
+                    type: "GET",
+                    url: "/del",
+                    data: encodeURI("indices="+ JSON.stringify(row_indices)),
+                    dataType: "json",
+                    async: false,
+                  })
             }
             }
-             $.ajax({
-                                    type: "POST",
-                                    url:"/get_data",
-                                    data: encodeURI("colname="+ JSON.stringify(send)),
-                                    dataType:"json",
-                                    aync:false,
-                   })
         });
     
 
-
-
     $("#newCol").click(function () {
         var temp, txt;
+        var new_cols = [];
         $("#table tr").each(function () {
 
 
@@ -169,9 +174,24 @@ $(document).ready(function () {
                 userInput.append("<h5 align = 'left'>&nbsp;Enter " + temp +
                                 ":&nbsp;" + "<input  class = 'form-control up' \
                                 align='left' type='text' placeholder='" + temp + "'/></h5>");
+                 $("td.newfield").each(function(){
+                    new_cols.push($(this).text());
+                     });
+
+                 $.ajax({
+                    type:"GET",
+                    data:encodeURI("newcoldata="+ JSON.stringify(new_cols)+"&new_th="+$("th.newfield").text()),
+                    dataType:"json",
+                    url:"/new_data",
+                    asyn:false,
+                    })
+                 $("th,td").removeClass("newfield");
             }
 
         });
+       
+        
+        
     });
 
 });
