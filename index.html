@@ -1,0 +1,42 @@
+<html>
+<body>
+<head>
+	
+	<link rel="stylesheet" href="styles/css/bootstrap.css">
+	<link rel="stylesheet" href="styles/css/bootstrap.min.css">
+	<link rel ="stylesheet" href = "styles/css/mystyles.css">
+	<script type="text/javascript" src="scripts/jquery.min.js"></script>
+	<script type = "text/javascript" src ="scripts/index.js"></script>
+</head>
+<nav class ="navbar navbar-inverse" role="navigation">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse"></button>
+					<a id="heading" class="navbar-brand" href="#">Dynamic Table</a>
+			</div>
+		</div>
+</nav>
+<div id="jb" class = "jumbotron">
+<h1>Welcome</h1>
+<p>Initialize your Connection</p>
+	<form id = "init" role="form">
+		<div class = "form-group">
+			<label>MySQL Server Address</label>
+				<input name="server" class = "form-control up inp" type="text" placeholder= "Enter Server Address">
+			
+			<label>Username</label>
+				<input name="user" class = "form-control up inp" type="text" placeholder = "Enter Username">
+			<label>Password</label>
+				<input name="pass" class = "form-control up inp" type="password" placeholder = "Enter Password">
+			<label>Database Name</label>
+				<input name="db" class = "form-control up inp" type="text" placeholder = "Enter Database Name">
+			<br>
+			<button id="conn" class = "btn btn-lg btn-primary">Connect</button>
+		</div>
+	</form>
+</div>
+
+
+
+</body>
+</html>

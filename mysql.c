@@ -13,33 +13,52 @@
 json_error_t error;
 MYSQL *conn;
 json_t *arr;
+void init_json();
 /* Initialise MYSQL Connection , execute queries
 to get fields and records and convert this to 
 json i.e. field-name, field-value pairs. */
-void init()
+void init_conn(httpd *server)
 {  
-    arr = json_array();
-    MYSQL_RES *res1, *res2;
-    MYSQL_ROW row1, row2;
-    char *server = "127.0.0.1";
-    char *user = "root";
-    char *password = "iwillnotrocku123"; 
-    char *database = "stu";
-    int i, j = 0;
-    char *s;
-    char *fields[100];
-    conn = mysql_init(NULL);
-/* Connect to database */
-    if (!mysql_real_connect(conn, server, user, password, database, 0, NULL, 0))
+
+    httpVar *var1,*var2,*var3,*var4;
+    var1 = httpdGetVariableByName(server,"server");
+    var2 = httpdGetVariableByName(server,"user");
+    var3 = httpdGetVariableByName(server,"pass");
+    var4 = httpdGetVariableByName(server,"db");
+    if(var1!=NULL && var2!=NULL && var3!=NULL && var4!=NULL)
     {
-        fprintf(stderr, "%s\n", mysql_error(conn));
-        exit(1);
+        char *serv = var1->value;
+        char *user = var2->value;
+        char *password = var3->value; 
+        char *database = var4->value;
+        char *error = (char*)malloc(MAX_VALUE_LENGTH);
+        conn = mysql_init(NULL);
+        /* Connect to datababase */
+        if (!mysql_real_connect(conn, serv, user, password, database, 0, NULL, 0))
+        {   
+
+            httpdPrintf(server,"%s",mysql_error(conn));
+
+        }
+        else
+        {
+            httpdPrintf(server,"Connection Successful");
+            mysql_query(conn,"ALTER TABLE details ADD COLUMN num INT AUTO_INCREMENT UNIQUE");
+            init_json();
+        }
     }
-    mysql_query(conn,"ALTER TABLE details ADD COLUMN num INT AUTO_INCREMENT UNIQUE");
+    return;
+}
+void init_json()
+{   arr = json_array();
+    MYSQL_ROW row1, row2;
+    MYSQL_RES *res1, *res2;
+    int i, j = 0;
+    char *fields[100];   
     mysql_query(conn,"CREATE TABLE temp LIKE details");
     mysql_query(conn,"INSERT INTO temp (SELECT * FROM details)");
     mysql_query(conn,"ALTER TABLE temp DROP COLUMN num");
-    mysql_query(conn, "show fields from temp");
+    mysql_query(conn, "SHOW FIELDS FROM temp");
     res1 = mysql_store_result(conn);
     while ((row1 = mysql_fetch_row(res1)) != NULL)
     {
@@ -53,13 +72,17 @@ void init()
         json_t *obj = json_object();
 
         for (i = 0 ; i < mysql_num_fields(res2) ; i++)
-        {   
+        {   if (row2[i] == NULL)
+            {
+                row2[i] = "&nbsp;";s
+            }
             json_object_set(obj, fields[i], json_string(row2[i]));
         }
         json_array_append(arr, obj);
     }
     mysql_query(conn,"DROP TABLE temp");
-
+    mysql_free_result(res1);
+    mysql_free_result(res2);
     return;
 }
 void update_data(httpd *server)
@@ -80,12 +103,13 @@ void update_data(httpd *server)
         }
     }
     free(str);
+    init_json();
     return;
 }
 
-/*C function to dump and recieve the data. */
+/*C functions which execute when a path is requested */
 void get_data(httpd *server)
-{       
+{    
     if(strcmp(httpdRequestMethodName(server),"GET")==0)
     {
         httpdPrintf(server,"%s",json_dumps(arr,JSON_PRESERVE_ORDER));
@@ -100,6 +124,7 @@ void new_data(httpd *server)
     json_t *value;
     char *new_keys,*new_values,*query = (char *)malloc(MAX_QUERY_LENGTH);
     char temp[MAX_QUERY_LENGTH];
+    char temp1[MAX_QUERY_LENGTH];
     size_t index;
     if(strcmp(httpdRequestMethodName(server),"POST")==0)
     {   
@@ -110,7 +135,8 @@ void new_data(httpd *server)
         json_object_foreach(new_obj,key,value)
         {   
             j++; 
-            strcat(new_keys,key);
+            sprintf(temp1,"`%s`",key);
+            strcat(new_keys,temp1);
             sprintf(temp,"'%s'",json_string_value(value));
             strcat(new_values,temp);
 
@@ -127,24 +153,25 @@ void new_data(httpd *server)
 
            free(new_keys);
            free(new_values);
-        
-        }
+    }
     else if(strcmp(httpdRequestMethodName(server),"GET")==0)
     {   
         colname = httpdGetVariableByName(server,"new_th");
-        sprintf(query,"ALTER TABLE details ADD COLUMN `%s` varchar(25)",colname->value);//datatype currently hard-coded
+        sprintf(query,"ALTER TABLE details ADD COLUMN `%s` varchar(25)",colname->value);//data type currently hard-coded
         if(mysql_query(conn,query))
             fprintf(stderr,"%s",mysql_error(conn));
         insert = httpdGetVariableByName(server,"newcoldata");
         new_array = json_loads(insert->value,0,&error);
         json_array_foreach(new_array,index,value)
-        {
+        {   
             sprintf(temp,"UPDATE details SET `%s`='%s' WHERE num = %d",colname->value,json_string_value(value),++j);
+            printf("%s",temp);
             if(mysql_query(conn,temp))
                 fprintf(stderr,"%s",mysql_error(conn));
         }
     }
     free(query);
+    init_json();
     return;
 }
 void del(httpd *server)
@@ -169,12 +196,13 @@ void del(httpd *server)
         col_data = json_loads(cols->value,0,&error);
         json_array_foreach(col_data,index,value)
         {
-            sprintf(query,"ALTER TABLE details DROP COLUMN %s",json_string_value(value));
+            sprintf(query,"ALTER TABLE details DROP COLUMN `%s`",json_string_value(value));
             if(mysql_query(conn,query))
                 fprintf(stderr,"%s",mysql_error(conn));
         }
     }
     free(query);
+    init_json();
     return;
 }
 void drop()
@@ -192,7 +220,7 @@ void sig_handler(int signo)
 }
 /* Initialising HTTPD Server and mapping File Names to URLs. */
 int main(argc,argv)
-{ 
+{   
     httpd *server;
     server = httpdCreate(NULL,PORT_NUMBER);
 
@@ -215,13 +243,13 @@ int main(argc,argv)
     httpdAddWildcardContent(server,"/styles/fonts",NULL,"styles/fonts");
     httpdAddWildcardContent(server,"/scripts",NULL,"scripts");
     httpdAddWildcardContent(server,"/",NULL,"");
-    httpdAddFileContent(server,"/","index.html",HTTP_TRUE,NULL,"table.html");
+    httpdAddFileContent(server,"/","index.html",HTTP_TRUE,NULL,"index.html");
+    httpdAddFileContent(server,"/","table.html",HTTP_FALSE,NULL,"table.html");
+    httpdAddCContent(server,"/","init",HTTP_FALSE,NULL,init_conn);
     httpdAddCContent(server,"/","get_data",HTTP_FALSE,NULL,get_data);
     httpdAddCContent(server,"/","update_data",HTTP_FALSE,NULL,update_data);
     httpdAddCContent(server,"/","new_data",HTTP_FALSE,NULL,new_data);
     httpdAddCContent(server,"/","del",HTTP_FALSE,NULL,del);
-    init();
-
     while(1==1)
     {
         if(httpdGetConnection(server,0)<0)
@@ -232,7 +260,7 @@ int main(argc,argv)
             continue;
         }
         else
-        {
+        {   
             httpdProcessRequest(server);
             httpdEndRequest(server);
         }

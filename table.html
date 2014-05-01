@@ -2,33 +2,34 @@
 <body>
 <head>
 
-	<title>Dynamic Table</title>
+	<nav class ="navbar navbar-inverse" role="navigation">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse"></button>
+					<a id="heading" class="navbar-brand" href="#">Dynamic Table</a>
+			</div>
+		</div>
+	</nav>	
 	<link rel="stylesheet" href="styles/css/bootstrap.css">
 	<link rel="stylesheet" href="styles/css/bootstrap.min.css">
 	<link rel ="stylesheet" href = "styles/css/mystyles.css">
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script type="text/javascript" src="scripts/jquery.min.js"></script>
 	<script type="text/javascript" src ="scripts/db.js"></script>
 </head>
-	<div class="page-header">
-
-		<h3 align="center">Dynamic Table</h1>
-	</div>
-	<div class="panel panel-info">
-		<div class="panel-heading">Description</div>
-		<div class="panel-body">
-			<ul id='test'>
-				<li>On pressing Add Record, a new record will be created.</li>
+		<h1>&nbsp;How to use?</h1>
+		<div id="head">
+			<ul>
+				<li>On clicking Add Record, a new record will be created.</li>
 				<li>
 					Clicking the select button and then clicking on a row or the field will cause the entity to be selected.
 				</li>
 				<li>
-					On selection and clicking the delete button will cause the row or the field to be removed.
+					On selection and clicking the delete button will cause selected entities to be delted.
 				</li>
 				<li>
 					Clicking on the add new field, textboxes will be created in the table where any input can be given and on pressing enter key the new field will be added.
 				</li>
 			</ul>
-		</div>
 	</div>
 	<div id="tableContainer">
 		<p id="buttonContainer">

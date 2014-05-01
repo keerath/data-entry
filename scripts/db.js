@@ -19,7 +19,7 @@ $(document).ready(function() {
         }
     });
     $("#info").append("<button type = 'button' title = 'Add Records'\
-                     class = 'glyphicon glyphicon-plus-sign btn btn-info btn-sm highlight '\
+                     class = 'glyphicon glyphicon-plus-sign btn btn-big btn-info highlight '\
                      id='update'>&nbsp;Add</buttton> ");
 
 });

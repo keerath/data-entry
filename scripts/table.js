@@ -31,7 +31,7 @@ $(document).ready(function () {
             }
         });
         function data_update()
-        {   alert("hi");
+        {   
             var clickpos = $("td").index(elem);
             var rownum = $("tr").index(elem.parent());
             var n = $("th").length;
@@ -75,7 +75,7 @@ $(document).ready(function () {
 
         });
         $("input:first").focus();
-        alert(JSON.stringify(new_record));
+        
        $.ajax({
             type:"POST",
             data:encodeURI("newrowdata=" + JSON.stringify(new_record)),
@@ -123,7 +123,7 @@ $(document).ready(function () {
                 $("th.selectedcol").each(function(){
                         send.push($(this).text());
                         });
-                        alert(JSON.stringify(send));
+                        
                           $.ajax({
                                     type: "POST",
                                     url:"/del",
