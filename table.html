@@ -9,10 +9,10 @@
 					<a id="heading" class="navbar-brand" href="#">Dynamic Table</a>
 			</div>
 		</div>
-	</nav>	
+	</nav>
+	<link rel ="stylesheet" href = "styles/css/mystyles.css">	
 	<link rel="stylesheet" href="styles/css/bootstrap.css">
 	<link rel="stylesheet" href="styles/css/bootstrap.min.css">
-	<link rel ="stylesheet" href = "styles/css/mystyles.css">
 	<script type="text/javascript" src="scripts/jquery.min.js"></script>
 	<script type="text/javascript" src ="scripts/db.js"></script>
 </head>
@@ -31,25 +31,22 @@
 				</li>
 			</ul>
 	</div>
-	<div id="tableContainer">
-		<p id="buttonContainer">
-			<button  title='Select Rows' align='center' type='button'  class='btn btn-info btn-xs' id='selectRows'>
+		<div id="tableContainer">
+		<div id="buttonContainer" class="btn-group" data-toggle="button">
+			<button  title='Select Rows' align='center' type='button'  class='btn btn-default btn-lg btn-col' id='selectRows'>
 				<img src='icons/cursor.png'></button>
 			&nbsp;
-			<button  title='Confirm Delete' id='confirm' type='button' class='btn btn-info btn-sm '>
+			<button  title='Confirm Delete' id='confirm' type='button' class='btn btn-default btn-lg btn-col'>
 				<img src='icons/cross.png'></button>
 			&nbsp;
-			<button title='Click to add field' class='btn btn-info btn-sm'   id='newCol' >
+			<button title='Click to add field' class='btn btn-default btn-lg btn-col' id='newCol' >
 				<img src='icons/report--plus.png'></button>
 				&nbsp;
-		</p>
-		<div class = "panel panel-primary">
-			<div class="panel-heading">Employee Details</div>
-			<table id="table" class="table table-bordered table-condensed table-alt">
+		</div>
+			<table id="table" class="table table-striped">
 				<tr id = "headContainer">
 				</tr>
 			</table>
-		</div>
 	</div>
 	<div id="info" class="jumbotron">
 		<h4 id="new"> <b>Enter new records:</b>

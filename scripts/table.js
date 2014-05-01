@@ -50,7 +50,11 @@ $(document).ready(function () {
             url:"/update_data",
             data: encodeURI("celldata="+elem.text()+"&rowNum="+rownum+"&field="+field),
             dataType:"text",
-          })
+            success: function(response)
+            {
+                alert(response);
+            }
+          });
 
         }
     });
@@ -167,7 +171,7 @@ $(document).ready(function () {
             if (event.which === 13) {
                 $("#table tr").each(function () {
                     txt = $(this).children().last().children().val();
-                    $(this).children().last().text(txt);
+                    $(this).children().last().text(txt.trim());
 
                 });
                 temp = $("tr:first").children().last().text();
@@ -175,23 +179,19 @@ $(document).ready(function () {
                                 ":&nbsp;" + "<input  class = 'form-control up' \
                                 align='left' type='text' placeholder='" + temp + "'/></h5>");
                  $("td.newfield").each(function(){
-                    new_cols.push($(this).text());
+                    new_cols.push($(this).text().trim());
                      });
 
                  $.ajax({
                     type:"GET",
-                    data:encodeURI("newcoldata="+ JSON.stringify(new_cols)+"&new_th="+$("th.newfield").text()),
+                    data:encodeURI("newcoldata="+ JSON.stringify(new_cols)+"&new_th="+$("th.newfield").text().trim()),
                     dataType:"json",
                     url:"/new_data",
-                    asyn:false,
+                    async:false,
                     })
                  $("th,td").removeClass("newfield");
             }
-
-        });
-       
-        
-        
+        });        
     });
 
 });

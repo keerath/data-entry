@@ -2,18 +2,6 @@
 {
 opacity:1.5;
 }
-.table-alt>tbody>tr:nth-child(odd)>td{
-        background-color:aliceblue;
-}
-.table-alt>tbody>tr:nth-child(odd)>th{
-        background-color:aliceblue;
-}
-
-.btn-default{
-        background-color:yellow;
-        border:3px;
-        border-color:3px;
-}
 .highlight{
 opacity: 1;
 }
@@ -23,15 +11,14 @@ opacity: 1;
         width:90%;
 }
 #buttonContainer{
-        margin:4px;
-
+        margin-bottom:10px;
 }
 #buttonContainer>button{
-        width:30px;
-        height:25px;
-        font-size: 75%;
+        width:43px;
+        height:35px;
+        background-color:white ;
+        opacity :0.9;
 }
-
 h4{
 position:relative;
 top: -20px;
@@ -40,20 +27,34 @@ top: -20px;
         width:18%;
         
 }
-
+.btn-col
+{
+        border-color:lightgray;
+}
 #tableContainer
-{                    
-margin-top: 150px;
-left:40%;
+{              
+width:700px;             
+margin-top: 5%;
+left:25%;
 position:absolute;
 overflow: hidden;
+border-width: 1px;
+border-color: #ddd;
+border-style:solid;
+padding:40px 20px 20px;
 }
-.table-alt>tbody>tr>td.selectedrow
+.table-striped>tbody>tr:nth-child(odd)>th,.table-striped>tbody>tr:nth-child(odd)>td{
+        background-color: white !important;
+}
+.table>tbody>tr>td.selectedrow
 {
-        background-color: yellow;
+        background-color: #F5F6CE!important;
 }
-.table-alt>tbody>tr>th.selectedcol,.table-alt>tbody>tr>td.selectedcol{
-        background-color: yellow;
+.table>tbody>tr>th.selectedcol,.table>tbody>tr>td.selectedcol{
+        background-color: #F5F6CE !important;
+}
+.table>tbody>tr>th,.table>tbody>tr>td{
+        padding:15px !important;
 }
 #heading
 {
