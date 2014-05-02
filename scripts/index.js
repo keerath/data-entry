@@ -1,4 +1,5 @@
 $(document).ready(function(){
+	$("#connAlert").hide();
 	$("#conn").click(function(event){
 		event.preventDefault();
 		var data = $("#init").serialize();
@@ -17,10 +18,18 @@ $(document).ready(function(){
 						}
 						else
 						{
-							alert(response);
+							$("#alert-content").append("<strong>Connection Error</strong>&nbsp;"+response);
+							$("#connAlert").show();
 						}
 					}		
 				
 				});		
+	});
+	$("button.close").click(function(event){
+		event.preventDefault();
+		$("#connAlert").hide();
+		$("input").val('');
+		$("input").first().focus();
+		$("#alert-content").html("");
 	});
 });
