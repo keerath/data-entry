@@ -72,7 +72,8 @@ void init_json()
         json_t *obj = json_object();
 
         for (i = 0 ; i < mysql_num_fields(res2) ; i++)
-        {   if (row2[i] == NULL)
+        {  
+             if (row2[i] == NULL)
             {
                 row2[i] = "&nbsp;";s
             }
@@ -99,7 +100,11 @@ void update_data(httpd *server)
         printf("%s",str);
         if(mysql_query(conn,str))
         {
-            fprintf(stderr,"%s",mysql_error(conn));
+            httpdPrintf(server,"%s",mysql_error(conn));
+        }
+        else
+        {
+            httpdPrintf(server,"Update Successful");
         }
     }
     free(str);
@@ -221,6 +226,11 @@ void sig_handler(int signo)
 /* Initialising HTTPD Server and mapping File Names to URLs. */
 int main(argc,argv)
 {   
+    signal(SIGINT,sig_handler);
+    signal(SIGABRT,sig_handler);
+    signal(SIGKILL,sig_handler);
+    signal(SIGQUIT,sig_handler);
+    atexit(drop); 
     httpd *server;
     server = httpdCreate(NULL,PORT_NUMBER);
 
@@ -229,11 +239,6 @@ int main(argc,argv)
         perror("Cant Create Server");
     }
 
-    signal(SIGINT,sig_handler);
-    signal(SIGABRT,sig_handler);
-    signal(SIGKILL,sig_handler);
-    signal(SIGQUIT,sig_handler);
-    atexit(drop); 
     httpdSetAccessLog(server,stdout);
     httpdSetErrorLog(server,stderr);
     httpdSetFileBase(server,"/cygdrive/c/users/keerath/desktop/project");

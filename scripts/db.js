@@ -4,7 +4,7 @@ $(document).ready(function() {
        $.each(data[0],function(key,value){
         $("#headContainer").append("<th>" + key + "</th>");
 
-     $("#userInput").append("<h5 align = 'left'>&nbsp;Enter " + key + ":&nbsp;" 
+     $("#userInput").append("<h5 align = 'left'>&nbsp;Enter " + key + "<p></p>" 
                         + "<input class = 'form-control up' name = "+ i +"  align='left' type='text'\
                         placeholder='" + key + "'/></h5>");
         i++;
@@ -20,6 +20,6 @@ $(document).ready(function() {
     });
     $("#info").append("<button type = 'button' title = 'Add Records'\
                      class = 'glyphicon glyphicon-plus-sign btn btn-primary highlight '\
-                     id='update'>&nbsp;Add</buttton> ");
+                     id='update'>Add</button> ");
 
 });
